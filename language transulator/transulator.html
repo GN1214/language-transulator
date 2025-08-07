@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Translation Tool</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom styles */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for textareas */
+        textarea::-webkit-scrollbar {
+            width: 8px;
+        }
+        textarea::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 10px;
+        }
+        textarea::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        /* Style for the select dropdown arrow */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke-width='2' stroke='%236b7280' class='w-6 h-6'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19.5 8.25l-7.5 7.5-7.5-7.5' /%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1.25em;
+            padding-right: 2.5rem;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-4xl bg-white rounded-2xl shadow-xl p-6 md:p-8">
+        
+        <!-- Header -->
+        <header class="text-center mb-6">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-800">Language Translator</h1>
+            <p class="text-slate-500 mt-2">Translate text between languages instantly.</p>
+        </header>
+
+        <!-- Main Translator Interface -->
+        <main>
+            <!-- Language Selection Row -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center mb-4">
+                <!-- Source Language Dropdown -->
+                <div class="w-full">
+                    <label for="source-lang" class="block text-sm font-medium text-slate-600 mb-1">From</label>
+                    <select id="source-lang" class="w-full bg-slate-50 border border-slate-300 text-slate-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        <!-- Languages will be populated by JavaScript -->
+                    </select>
+                </div>
+
+                <!-- Swap Button -->
+                <div class="flex justify-center items-end h-full">
+                    <button id="swap-btn" class="p-3 rounded-full bg-slate-200 text-slate-600 hover:bg-blue-500 hover:text-white transition-all duration-300 transform hover:rotate-180 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
+                </div>
+
+                <!-- Target Language Dropdown -->
+                <div class="w-full">
+                     <label for="target-lang" class="block text-sm font-medium text-slate-600 mb-1">To</label>
+                    <select id="target-lang" class="w-full bg-slate-50 border border-slate-300 text-slate-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                        <!-- Languages will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+
+            <!-- Text Areas Row -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <!-- Source Text Area -->
+                <div class="relative">
+                    <textarea id="source-text" class="w-full h-48 p-4 bg-slate-50 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Enter text to translate..."></textarea>
+                    <div class="absolute bottom-3 right-3 flex space-x-2">
+                        <button id="copy-source-btn" class="action-btn" title="Copy text">
+                            <i class="far fa-copy"></i>
+                        </button>
+                        <button id="speak-source-btn" class="action-btn" title="Speak text">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                    </div>
+                </div>
+                <!-- Target Text Area -->
+                <div class="relative">
+                    <textarea id="target-text" class="w-full h-48 p-4 bg-slate-50 border border-slate-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="Translation will appear here..." readonly></textarea>
+                     <div class="absolute bottom-3 right-3 flex space-x-2">
+                        <button id="copy-target-btn" class="action-btn" title="Copy translation">
+                            <i class="far fa-copy"></i>
+                        </button>
+                        <button id="speak-target-btn" class="action-btn" title="Speak translation">
+                            <i class="fas fa-volume-up"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Translate Button -->
+            <div class="text-center">
+                <button id="translate-btn" class="w-full md:w-auto bg-blue-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-blue-700 transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    <span id="translate-btn-text">Translate</span>
+                    <i id="loading-spinner" class="fas fa-spinner fa-spin hidden ml-2"></i>
+                </button>
+            </div>
+            
+             <!-- Message/Toast Notification -->
+            <div id="toast" class="fixed top-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transform translate-y-full transition-all duration-300">
+                Copied to clipboard!
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+    // ===================================================================================
+    // STEP 1: DEFINE LANGUAGES AND GET DOM ELEMENTS
+    // We start by defining the list of languages we want to support.
+    // **I've added Tamil to this list.**
+    // ===================================================================================
+    const languages = {
+        "English": "en-US", "Spanish": "es-ES", "French": "fr-FR", "German": "de-DE",
+        "Italian": "it-IT", "Portuguese": "pt-PT", "Dutch": "nl-NL", "Russian": "ru-RU",
+        "Japanese": "ja-JP", "Korean": "ko-KR", "Chinese (Simplified)": "zh-CN",
+        "Arabic": "ar-SA", "Hindi": "hi-IN", "Tamil": "ta-IN", "Bengali": "bn-BD", 
+        "Indonesian": "id-ID", "Turkish": "tr-TR", "Vietnamese": "vi-VN"
+    };
+
+    const sourceLangEl = document.getElementById('source-lang');
+    const targetLangEl = document.getElementById('target-lang');
+    const sourceTextEl = document.getElementById('source-text');
+    const targetTextEl = document.getElementById('target-text');
+    const translateBtn = document.getElementById('translate-btn');
+    const translateBtnText = document.getElementById('translate-btn-text');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const swapBtn = document.getElementById('swap-btn');
+    const copySourceBtn = document.getElementById('copy-source-btn');
+    const copyTargetBtn = document.getElementById('copy-target-btn');
+    const speakSourceBtn = document.getElementById('speak-source-btn');
+    const speakTargetBtn = document.getElementById('speak-target-btn');
+    const toastEl = document.getElementById('toast');
+
+    // ===================================================================================
+    // STEP 2: POPULATE LANGUAGE DROPDOWNS
+    // We dynamically create <option> elements for each language and add them to the
+    // <select> dropdowns. This makes it easy to add or remove languages later.
+    // ===================================================================================
+    function populateLanguages() {
+        // Sort languages alphabetically for better UX
+        const sortedLanguages = Object.fromEntries(
+            Object.entries(languages).sort(([langA], [langB]) => langA.localeCompare(langB))
+        );
+
+        for (const [langName, langCode] of Object.entries(sortedLanguages)) {
+            const sourceOption = new Option(langName, langCode);
+            const targetOption = new Option(langName, langCode);
+            sourceLangEl.add(sourceOption);
+            targetLangEl.add(targetOption);
+        }
+        // Set default languages
+        sourceLangEl.value = 'en-US';
+        targetLangEl.value = 'ta-IN'; // Default to Tamil
+    }
+
+    // ===================================================================================
+    // STEP 3: IMPLEMENT THE TRANSLATION LOGIC
+    // This is the core function. It takes the user's text and selected languages,
+    // constructs a prompt for the AI model, and sends it via an API call.
+    // ===================================================================================
+    async function handleTranslation() {
+        const sourceText = sourceTextEl.value.trim();
+        const sourceLangName = sourceLangEl.options[sourceLangEl.selectedIndex].text;
+        const targetLangName = targetLangEl.options[targetLangEl.selectedIndex].text;
+
+        if (!sourceText) {
+            targetTextEl.value = "Please enter some text to translate.";
+            return;
+        }
+
+        // Show loading state
+        setLoading(true);
+        targetTextEl.value = "Translating...";
+
+        // Construct the prompt for the Gemini API
+        const prompt = `Translate the following text from ${sourceLangName} to ${targetLangName}. Provide only the translated text, without any additional explanations or introductory phrases. Text to translate: "${sourceText}"`;
+
+        try {
+            // This is where we call the Gemini API
+            const apiKey = "AIzaSyBBdjoUVKVJZb1Ovv-6WbQD7XYIRg3BSKo"; // API key is handled by the environment
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{
+                    parts: [{ text: prompt }]
+                }]
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.statusText}`);
+            }
+
+            const result = await response.json();
+            
+            if (result.candidates && result.candidates.length > 0) {
+                const translatedText = result.candidates[0].content.parts[0].text;
+                targetTextEl.value = translatedText.trim();
+            } else {
+                throw new Error("No translation received from the API.");
+            }
+
+        } catch (error) {
+            console.error("Translation Error:", error);
+            targetTextEl.value = "Sorry, an error occurred during translation.";
+        } finally {
+            // Hide loading state
+            setLoading(false);
+        }
+    }
+    
+    // Helper function to manage the loading state of the translate button
+    function setLoading(isLoading) {
+        if (isLoading) {
+            translateBtn.disabled = true;
+            translateBtnText.classList.add('hidden');
+            loadingSpinner.classList.remove('hidden');
+        } else {
+            translateBtn.disabled = false;
+            translateBtnText.classList.remove('hidden');
+            loadingSpinner.classList.add('hidden');
+        }
+    }
+
+    // ===================================================================================
+    // STEP 4: IMPLEMENT UTILITY FEATURES (COPY, SPEAK, SWAP)
+    // These functions add extra usability to our tool.
+    // ===================================================================================
+
+    // --- Copy to Clipboard ---
+    function copyToClipboard(element) {
+        if (!element.value) return; 
+        
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = element.value;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempTextArea);
+
+        toastEl.classList.remove('opacity-0', 'translate-y-full');
+        toastEl.classList.add('opacity-100', 'translate-y-0');
+        setTimeout(() => {
+            toastEl.classList.remove('opacity-100', 'translate-y-0');
+            toastEl.classList.add('opacity-0', 'translate-y-full');
+        }, 2000);
+    }
+
+    // --- Text-to-Speech ---
+    function speakText(element, langCode) {
+        const text = element.value;
+        if (!text || !window.speechSynthesis) return;
+
+        speechSynthesis.cancel(); 
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = langCode; // This tells the browser which language voice to use
+        speechSynthesis.speak(utterance);
+    }
+
+    // --- Swap Languages ---
+    function swapLanguages() {
+        const sourceLang = sourceLangEl.value;
+        const targetLang = targetLangEl.value;
+        const sourceText = sourceTextEl.value;
+        const targetText = targetTextEl.value;
+
+        sourceLangEl.value = targetLang;
+        targetLangEl.value = sourceLang;
+        sourceTextEl.value = targetText;
+        targetTextEl.value = sourceText;
+    }
+
+    // ===================================================================================
+    // STEP 5: ATTACH EVENT LISTENERS
+    // This is the final step where we connect our functions to user actions.
+    // ===================================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        populateLanguages();
+
+        translateBtn.addEventListener('click', handleTranslation);
+        swapBtn.addEventListener('click', swapLanguages);
+
+        copySourceBtn.addEventListener('click', () => copyToClipboard(sourceTextEl));
+        copyTargetBtn.addEventListener('click', () => copyToClipboard(targetTextEl));
+
+        speakSourceBtn.addEventListener('click', () => speakText(sourceTextEl, sourceLangEl.value));
+        speakTargetBtn.addEventListener('click', () => speakText(targetTextEl, targetLangEl.value));
+        
+        sourceTextEl.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                handleTranslation();
+            }
+        });
+    });
+
+    </script>
+</body>
+</html>
